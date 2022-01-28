@@ -3,13 +3,19 @@
 #include <iostream>
 #include <QPainter>
 
+//-----------------------------------------------------------------------------
+
 QrPicture::QrPicture() {}
+
+//-----------------------------------------------------------------------------
 
 QrPicture::QrPicture(std::string str, qrcodegen::QrCode::Ecc ecc)
 {
     mUrl = str;
     mQr0 = qrcodegen::QrCode::encodeText(str.c_str(), ecc);
 }
+
+//-----------------------------------------------------------------------------
 
 QPixmap & QrPicture::getQrPixMap(QPixmap &map, int height, int width)
 {
@@ -19,6 +25,8 @@ QPixmap & QrPicture::getQrPixMap(QPixmap &map, int height, int width)
 
     return map;
 }
+
+//-----------------------------------------------------------------------------
 
 void QrPicture::mPaintQr(QPainter &painter, const QSize sz, QColor fg)
 {
@@ -30,23 +38,39 @@ void QrPicture::mPaintQr(QPainter &painter, const QSize sz, QColor fg)
     const double scale = size/(s+2);
     double rx1, ry1;
 
+    //-------------------------------------------------------------------------
+
     // Setting the background color....
     painter.setPen(Qt::NoPen);
     painter.setBrush(Qt::white);
-    for(int y=0; y<size; y++) {
-        for(int x=0; x<size; x++) {
+
+    //-------------------------------------------------------------------------
+
+    for(int y=0; y<size; y++)
+    {
+        for(int x=0; x<size; x++)
+        {
             rx1=x*scale, ry1=y*scale;
             QRectF r(rx1, ry1, scale, scale);
             painter.drawRects(&r,1);
         }
     }
 
+    //-------------------------------------------------------------------------
+
     painter.setPen(Qt::NoPen);
     painter.setBrush(fg);
-    for(int y=0; y<s; y++) {
-        for(int x=0; x<s; x++) {
-            const int color = mQr0.getModule(x, y);  // 0 for white, 1 for black
-            if(0x0!=color) {
+
+    //-------------------------------------------------------------------------
+
+    for(int y=0; y<s; y++)
+    {
+        for(int x=0; x<s; x++)
+        {
+            // 0 for white, 1 for black
+            const int color = mQr0.getModule(x, y);
+            if(0x0!=color)
+            {
                 const double rx1=(x+1) * scale, ry1=(y+1) * scale;
                 QRectF r(rx1, ry1, scale, scale);
                 painter.drawRects(&r,1);
@@ -55,6 +79,8 @@ void QrPicture::mPaintQr(QPainter &painter, const QSize sz, QColor fg)
     }
 
 }
+
+//-----------------------------------------------------------------------------
 
 std::string QrPicture::getUrl()
 {

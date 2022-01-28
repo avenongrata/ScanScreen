@@ -4,32 +4,39 @@
 #include <chrono>
 #include <locale>
 
-//#include <stdio.h>
-//#include <gdiplus.h>
-//#include <time.h>
-//#include <atlstr.h>
-//#include <Gdiplusimaging.h>
+//-----------------------------------------------------------------------------
 
-//#pragma comment(lib, "gdiplus.lib")
-//#pragma comment(lib, "gdi32.lib")
-//#pragma comment(lib, "kernel32.lib")
-//#pragma comment(lib, "user32.lib")
-//#pragma comment(lib, "winspool.lib")
-//#pragma comment(lib, "comdlg32.lib")
-//#pragma comment(lib, "advapi32.lib")
-//#pragma comment(lib, "shell32.lib")
-//#pragma comment(lib, "ole32.lib")
-//#pragma comment(lib, "oleaut32.lib")
-//#pragma comment(lib, "uuid.lib")
+/*#include <stdio.h>
+#include <gdiplus.h>
+#include <time.h>
+#include <atlstr.h>
+#include <Gdiplusimaging.h>
 
+#pragma comment(lib, "gdiplus.lib")
+#pragma comment(lib, "gdi32.lib")
+#pragma comment(lib, "kernel32.lib")
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "winspool.lib")
+#pragma comment(lib, "comdlg32.lib")
+#pragma comment(lib, "advapi32.lib")
+#pragma comment(lib, "shell32.lib")
+#pragma comment(lib, "ole32.lib")
+#pragma comment(lib, "oleaut32.lib")
+#pragma comment(lib, "uuid.lib")*/
+
+//-----------------------------------------------------------------------------
 
 QrScreenSave::QrScreenSave()
     : mScreenPath("lol")         // globalInstallationPath
 {}
 
+//-----------------------------------------------------------------------------
+
 QrScreenSave::QrScreenSave(std::string path)
     : mScreenPath(path)
 {}
+
+//-----------------------------------------------------------------------------
 
 std::string QrScreenSave::takeScreen()
 {
@@ -37,6 +44,8 @@ std::string QrScreenSave::takeScreen()
     CImage image;
     std::string fileName;
     std::wstring fileNameUnicode;
+
+    //-------------------------------------------------------------------------
 
     // get screen dimensions
     x1  = GetSystemMetrics(SM_XVIRTUALSCREEN);
@@ -46,6 +55,8 @@ std::string QrScreenSave::takeScreen()
     w   = x2 - x1;
     h   = y2 - y1;
 
+    //-------------------------------------------------------------------------
+
     // copy screen to bitmap
     HDC     hScreen = GetDC(NULL);
     HDC     hDC     = CreateCompatibleDC(hScreen);
@@ -53,20 +64,24 @@ std::string QrScreenSave::takeScreen()
     HGDIOBJ old_obj = SelectObject(hDC, hBitmap);
     BOOL    bRet    = BitBlt(hDC, 0, 0, w, h, hScreen, x1, y1, SRCCOPY);
 
+    //-------------------------------------------------------------------------
+
     // save bitmap to clipboard
     OpenClipboard(NULL);
     EmptyClipboard();
     SetClipboardData(CF_BITMAP, hBitmap);
     CloseClipboard();
 
+    //-------------------------------------------------------------------------
+
     // save bitmap to png file
     image.Attach(hBitmap);
     fileName = mGetFileName();
-    // DELETE LATER ?
     fileName = mScreenPath + "\\" + fileName;
-    // END
     fileNameUnicode.assign(fileName.begin(), fileName.end());
     image.Save(fileNameUnicode.c_str(), Gdiplus::ImageFormatPNG);
+
+    //-------------------------------------------------------------------------
 
     // clean up
     SelectObject(hDC, old_obj);
@@ -74,14 +89,20 @@ std::string QrScreenSave::takeScreen()
     ReleaseDC(NULL, hScreen);
     DeleteObject(hBitmap);
 
+    //-------------------------------------------------------------------------
+
     return fileName;
 }
+
+//-----------------------------------------------------------------------------
 
 std::string QrScreenSave::mGetFileName()
 {
     auto currentTime = std::chrono::system_clock::now();
-    std::time_t currentTimeStd = std::chrono::system_clock::to_time_t(currentTime);
-    std::string fileName = std::string(PROGRAM_NAME) + "_" + std::to_string(currentTimeStd) + ".png";
+    std::time_t currentTimeStd =
+            std::chrono::system_clock::to_time_t(currentTime);
+    std::string fileName = std::string(PROGRAM_NAME) + "_" +
+            std::to_string(currentTimeStd) + ".png";
 
     return fileName;
 }
